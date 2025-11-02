@@ -1,0 +1,22 @@
+package domain
+
+import (
+	"github.com/bookweb/structcopy-gen/tests/fixtures/usecase/embedded/domain/types"
+)
+
+type Concrete struct {
+	types.Base
+	Name       string
+	NestedData Nest
+}
+
+type Nest struct {
+	types.Base
+	NestedDataSub NestSub
+}
+
+type NestSub struct {
+	types.Base
+	// ID shadows the Base.ID. Also, it's a differently typed field.
+	ID string
+}

@@ -1,0 +1,52 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    paths:
+      - '**.go'
+      - '**.mod'
+      - '**.sum'
+      - 'Makefile'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go: [1.23]
+        os: [ubuntu-latest]
+    name: test
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Get Go cache paths
+        id: go-cache
+        shell: bash
+        run: |-
+          echo "::set-output name=cache::$(go env GOCACHE)"
+          echo "::set-output name=modcache::$(go env GOMODCACHE)"
+      - name: Set up Go cache
+        uses: actions/cache@v4
+        with:
+          key: |-
+            ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.go }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |-
+            ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.go }}-${{ github.run_id }}-
+            ${{ inputs.cache-key-prefix }}-${{ runner.os }}-${{ runner.go }}-
+          path: |-
+            ${{ steps.go-cache.outputs.cache }}
+            ${{ steps.go-cache.outputs.modcache }}
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run test
+        run: |
+          make test
