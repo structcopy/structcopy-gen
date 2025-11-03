@@ -38,6 +38,12 @@ func UserSliceToUserDTOSlice(src []*entity.User) (dst []*dto.UserDTO) {
 }
 
 func UserSliceToUserDTOSliceRaw(src []entity.User) (dst []dto.UserDTO) {
+	if len(src) > 0 {
+		dst = make([]dto.UserDTO, len(src))
+		for i, e := range src {
+			dst[i] = UserToUserDTORaw(e)
+		}
+	}
 
 	return
 }
