@@ -236,3 +236,4 @@ fabric.properties
 cmd/structcopy-gen/structcopy-gen
 
 __debug_bin**
+.VERSION

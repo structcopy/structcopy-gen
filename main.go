@@ -35,7 +35,7 @@ func Run() error {
 
 	if *version {
 		fmt.Println(config.Version)
-		fmt.Printf("%s-%s-%s-%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
+		fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
 	} else if *standalone {
 		inp := "examples/internal/standalone/structcopy-gen.go"
 		ext := path.Ext(inp)

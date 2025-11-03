@@ -2,6 +2,6 @@ package config
 
 var Version string = "dev"
 
-var CommitHash = ""
+var CommitHash string = ""
 
-var BuildTime = ""
+var BuildTime string = ""
