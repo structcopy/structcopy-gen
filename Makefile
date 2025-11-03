@@ -21,10 +21,16 @@ generate:
 	go generate ./...
 
 build:
-	go build -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) -X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) -X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" -o ./cmd/structcopy-gen/structcopy-gen ./cmd/structcopy-gen/main.go
+	go build -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) \
+		-X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
+		-X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
+		-o ./cmd/structcopy-gen/structcopy-gen ./cmd/structcopy-gen/main.go
 
 install:
-	go install -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) -X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) -X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" ./cmd/structcopy-gen
+	go install -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) \
+		-X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
+		-X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
+		./cmd/structcopy-gen
 
 generate-standalone:
 	go generate ./examples/internal/standalone
