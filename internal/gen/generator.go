@@ -127,25 +127,6 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 				// Iterate over the method list of the interface
 				if interfaceType.Methods != nil {
 					for _, method := range interfaceType.Methods.List {
-						// // 1. Get the Method Name (Interfaces can embed other types, which have no name)
-						// if len(field.Names) == 0 {
-						// 	// This is likely an embedded interface, e.g., 'type Reader interface { io.Closer }'
-						// 	// We'll skip it for simplicity in this example.
-						// 	continue
-						// }
-						// methodName := field.Names[0].Name
-
-						// // 2. Get the Method Comment (documentation)
-						// docComment := ""
-						// if field.Doc != nil {
-						// 	// field.Doc is an *ast.CommentGroup. Text() extracts the clean comment.
-						// 	// We trim the result to remove leading/trailing whitespace.
-						// 	docComment = strings.TrimSpace(field.Doc.Text())
-						// }
-
-						// fmt.Printf("  Method: %s\n", methodName)
-						// fmt.Printf("  Comment: %q\n", docComment)
-
 						// Method Name
 						if len(method.Names) == 0 {
 							continue // Skip embedded interfaces
@@ -164,27 +145,11 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 						var err error
 						// Get Documentation Comment
 						if method.Doc != nil {
-							// opts := option.NewOptions()
-							// for _, comment := range method.Doc.List {
-							// }
 							currentMethodOptions, err = g.CollectOptions(method.Doc.List, ValidOpsMethod)
 							if err != nil {
 								g.logger.Error("collect options failed", slog.Any("error", err))
-								// g.logger.Error("collect")
 							}
 							g.logger.Info("Valid annotations")
-
-							// // currentMethod.Doc = strings.TrimSpace(method.Doc.Text())
-							// isTarget := util.MatchComments(method.Doc, reStructCopyGen)
-							// if !isTarget {
-							// 	// continue
-							// } else {
-							// 	notations := util.ExtractMatchComments(method.Doc, reNotation)
-							// 	err := p.parseNotationInComments(notations, option.ValidOpsIntf, &opts)
-							// 	if err != nil {
-							// 		return nil, err
-							// 	}
-							// }
 						}
 
 						currentMethod.SkipFieldsMap = currentMethodOptions.SkipFieldsMap
@@ -204,59 +169,15 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 						// paramStrs := []string{}
 						if funcType.Params != nil {
 							for _, paramField := range funcType.Params.List {
-								// paramName := ""
-								// if len(paramField.Names) > 0 {
-								// 	paramName = paramField.Names[0].Name
-								// }
-
-								// // Check if the parameter type is a struct or a pointer to a struct
-								// switch t := paramField.Type.(type) {
-								// case *ast.Ident:
-								// 	fmt.Printf("    Parameter: %s (Type: %s)\n", paramName, t.Name)
-								// 	// You would need to resolve 't.Name' to see if it's a struct
-								// case *ast.StarExpr: // Pointer to a type
-								// 	if ident, ok := t.X.(*ast.Ident); ok {
-								// 		fmt.Printf("    Parameter: %s (Type: *%s)\n", paramName, ident.Name)
-								// 		// You would need to resolve 'ident.Name' to see if it's a struct
-								// 	}
-								// // This is an anonymous struct parameter
-								// case *ast.StructType:
-								// }
-
 								var params []structcopy.MethodParam
 								params = append(params, parseMethodParams(pkgName, paramField, parsedStructs)...)
-
-								// paramType := extractType(paramField.Type)
-								paramTypeInfo := extractTypeInfo(paramField.Type, "")
-
-								if len(paramField.Names) > 0 {
-									// Named parameter, e.g., (name string)
-									for _, name := range paramField.Names {
-										// paramStrs = append(paramStrs, fmt.Sprintf("%s %s", name.Name, paramType))
-										// currentMethod.Params = append(currentMethod.Params, fmt.Sprintf("%s %s", name.Name, paramType))
-
-										info := paramTypeInfo // Copy the base type info
-										info.Name = name.Name // Set the parameter name
-										currentMethod.Params = append(currentMethod.Params, info)
-										currentMethod.NewParams = params
-									}
-								} else {
-									// Unnamed parameter, e.g., (string)
-									// paramStrs = append(paramStrs, paramType)
-									// currentMethod.Params = append(currentMethod.Params, paramType)
-									currentMethod.Params = append(currentMethod.Params, paramTypeInfo)
-									currentMethod.NewParams = params
-								}
+								currentMethod.Params = params
 							}
 
 							if len(currentMethod.Params) > 0 {
 								currentMethod.FirstParam = currentMethod.Params[0]
 							}
-							if len(currentMethod.NewParams) > 0 {
-								currentMethod.NewFirstParam = currentMethod.NewParams[0]
-							}
 						}
-						// fmt.Printf("    Parameters: (%s)\n", strings.Join(paramStrs, ", "))
 
 						// --- Results (Outputs) ---
 						// resultStrs := []string{}
@@ -264,48 +185,17 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 							for _, resultField := range funcType.Results.List {
 								var results []structcopy.MethodResult
 								results = append(results, parseMethodResults(pkgName, resultField, parsedStructs)...)
-
-								// resultType := extractType(resultField.Type)
-								resultTypeInfo := extractTypeInfo(resultField.Type, "")
-
-								if len(resultField.Names) > 0 {
-									// Named result, e.g., (err error)
-									for _, name := range resultField.Names {
-										// resultStrs = append(resultStrs, fmt.Sprintf("%s %s", name.Name, resultType))
-										// currentMethod.Results = append(currentMethod.Results, fmt.Sprintf("%s %s", name.Name, resultType))
-										info := resultTypeInfo
-										info.Name = name.Name
-										currentMethod.Results = append(currentMethod.Results, info)
-										currentMethod.NewResults = results
-									}
-								} else {
-									// Unnamed result, e.g., (error)
-									// resultStrs = append(resultStrs, resultType)
-									// currentMethod.Results = append(currentMethod.Results, resultType)
-									currentMethod.Results = append(currentMethod.Results, resultTypeInfo)
-									currentMethod.NewResults = results
-								}
+								currentMethod.Results = results
 							}
 
 							if len(currentMethod.Results) > 0 {
 								currentMethod.FirstResult = currentMethod.Results[0]
 							}
-							if len(currentMethod.NewResults) > 0 {
-								currentMethod.NewFirstResult = currentMethod.NewResults[0]
-							}
 						}
 
-						// if len(resultStrs) == 0 {
-						// 	fmt.Println("    Results: (None)")
-						// } else if len(resultStrs) == 1 {
-						// 	fmt.Printf("    Result: %s\n", resultStrs[0])
-						// } else {
-						// 	fmt.Printf("    Results: (%s)\n", strings.Join(resultStrs, ", "))
-						// }
-
 						assignments, err := g.mkMethodAssignments(
-							currentMethod.NewFirstParam,
-							currentMethod.NewFirstResult,
+							currentMethod.FirstParam,
+							currentMethod.FirstResult,
 							currentMethod,
 						)
 						if err != nil {
@@ -651,6 +541,7 @@ func parseMethodParams(pkgName string, field *ast.Field, structs map[string]*str
 	var results []structcopy.MethodParam
 
 	paramName := "src"
+	// (src *entity.User)
 	for _, name := range field.Names {
 		paramName = name.Name
 	}
@@ -692,6 +583,7 @@ func parseMethodResults(pkgName string, field *ast.Field, structs map[string]*st
 	var results []structcopy.MethodResult
 
 	resultName := "dst"
+	// (dst *dto.UserDTO)
 	for _, name := range field.Names {
 		resultName = name.Name
 	}

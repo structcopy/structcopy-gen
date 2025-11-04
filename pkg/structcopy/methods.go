@@ -8,18 +8,11 @@ import (
 // Method represents a single function signature within an interface.
 type Method struct {
 	Name        string
-	Params      []TypeInfo
-	Results     []TypeInfo
-	FirstParam  TypeInfo
-	FirstResult TypeInfo
+	Params      []MethodParam
+	Results     []MethodResult
+	FirstParam  MethodParam
+	FirstResult MethodResult
 
-	NewParams      []MethodParam
-	NewResults     []MethodResult
-	NewFirstParam  MethodParam
-	NewFirstResult MethodResult
-
-	Src            Variable
-	Dst            Variable
 	AdditionalArgs []Variable
 
 	Receiver            string
@@ -112,29 +105,9 @@ func (f Method) String() string {
 	// "func"
 	sb.WriteString("func ")
 
-	if f.Receiver != "" {
-		// "func (r *MyStruct)"
-		sb.WriteString("(")
-		sb.WriteString(f.Receiver)
-		sb.WriteString(" ")
-		sb.WriteString(f.Src.FullType())
-		sb.WriteString(") ")
-	}
-
 	// "func (r *SrcModel) Name("
 	sb.WriteString(f.Name)
 	sb.WriteString("(")
-
-	if f.DstVarStyle == DstVarArg {
-		// "func Name(dst *DstModel"
-		sb.WriteString(f.Dst.Name)
-		sb.WriteString(" *")
-		sb.WriteString(f.Dst.PtrLessFullType())
-		if f.Receiver == "" {
-			// "func Name(dst *DstModel, "
-			sb.WriteString(", ")
-		}
-	}
 
 	if f.Receiver == "" {
 		// // "func Name(dst *DstModel, src *SrcModel"
@@ -143,9 +116,9 @@ func (f Method) String() string {
 		// sb.WriteString(f.Src.FullType())
 
 		// "func Name(dst *DstModel, src *SrcModel"
-		sb.WriteString(f.NewFirstParam.Name)
+		sb.WriteString(f.FirstParam.Name)
 		sb.WriteString(" ")
-		sb.WriteString(f.NewFirstParam.FullType)
+		sb.WriteString(f.FirstParam.FullType)
 	}
 
 	for _, args := range f.AdditionalArgs {
@@ -166,9 +139,9 @@ func (f Method) String() string {
 	if f.DstVarStyle == DstVarReturn {
 		// "func Name(src *SrcModel) (dst *DstModel"
 		sb.WriteString("(")
-		sb.WriteString(f.NewFirstResult.Name)
+		sb.WriteString(f.FirstResult.Name)
 		sb.WriteString(" ")
-		sb.WriteString(f.NewFirstResult.FullType)
+		sb.WriteString(f.FirstResult.FullType)
 		if f.RetError {
 			// "func Name(src *SrcModel) (dst *DstModel, err error"
 			sb.WriteString(", err error")
@@ -176,14 +149,14 @@ func (f Method) String() string {
 
 		// "func Name(src *SrcModel) (dst *DstModel) {"
 		sb.WriteString(") {\n")
-		if f.NewFirstResult.IsPointer {
+		if f.FirstResult.IsPointer {
 			// "dst = &DstModel{}"
-			sb.WriteString(f.NewFirstResult.Name)
+			sb.WriteString(f.FirstResult.Name)
 			sb.WriteString(" = ")
-			if f.NewFirstResult.IsPointer {
+			if f.FirstResult.IsPointer {
 				sb.WriteString("&")
 			}
-			sb.WriteString(f.NewFirstResult.PointerlessFullType)
+			sb.WriteString(f.FirstResult.PointerlessFullType)
 			sb.WriteString("{}\n")
 		}
 	} else {
@@ -196,14 +169,8 @@ func (f Method) String() string {
 		}
 	}
 
-	if f.PreProcess != nil {
-		sb.WriteString(f.ManipulatorToString(f.PreProcess, f.Src, f.Dst, f.AdditionalArgs))
-	}
 	for i := range f.Assignments {
 		sb.WriteString(f.AssignmentToString(f.Assignments[i]))
-	}
-	if f.PostProcess != nil {
-		sb.WriteString(f.ManipulatorToString(f.PostProcess, f.Src, f.Dst, f.AdditionalArgs))
 	}
 	if f.RetError || f.DstVarStyle == DstVarReturn {
 		sb.WriteString("\nreturn\n")
@@ -224,29 +191,9 @@ func (f Method) FormatSliceOfStruct() string {
 	// "func"
 	sb.WriteString("func ")
 
-	if f.Receiver != "" {
-		// "func (r *MyStruct)"
-		sb.WriteString("(")
-		sb.WriteString(f.Receiver)
-		sb.WriteString(" ")
-		sb.WriteString(f.Src.FullType())
-		sb.WriteString(") ")
-	}
-
 	// "func (r *SrcModel) Name("
 	sb.WriteString(f.Name)
 	sb.WriteString("(")
-
-	if f.DstVarStyle == DstVarArg {
-		// "func Name(dst *DstModel"
-		sb.WriteString(f.Dst.Name)
-		sb.WriteString(" *")
-		sb.WriteString(f.Dst.PtrLessFullType())
-		if f.Receiver == "" {
-			// "func Name(dst *DstModel, "
-			sb.WriteString(", ")
-		}
-	}
 
 	if f.Receiver == "" {
 		// // "func Name(dst *DstModel, src *SrcModel"
@@ -255,9 +202,9 @@ func (f Method) FormatSliceOfStruct() string {
 		// sb.WriteString(f.Src.FullType())
 
 		// "func Name(dst *DstModel, src *SrcModel"
-		sb.WriteString(f.NewFirstParam.Name)
+		sb.WriteString(f.FirstParam.Name)
 		sb.WriteString(" []")
-		sb.WriteString(f.NewFirstParam.FullType)
+		sb.WriteString(f.FirstParam.FullType)
 	}
 
 	for _, args := range f.AdditionalArgs {
@@ -278,9 +225,9 @@ func (f Method) FormatSliceOfStruct() string {
 	if f.DstVarStyle == DstVarReturn {
 		// "func Name(src *SrcModel) (dst *DstModel"
 		sb.WriteString("(")
-		sb.WriteString(f.NewFirstResult.Name)
+		sb.WriteString(f.FirstResult.Name)
 		sb.WriteString(" []")
-		sb.WriteString(f.NewFirstResult.FullType)
+		sb.WriteString(f.FirstResult.FullType)
 		if f.RetError {
 			// "func Name(src *SrcModel) (dst *DstModel, err error"
 			sb.WriteString(", err error")
@@ -308,15 +255,10 @@ func (f Method) FormatSliceOfStruct() string {
 		}
 	}
 
-	if f.PreProcess != nil {
-		sb.WriteString(f.ManipulatorToString(f.PreProcess, f.Src, f.Dst, f.AdditionalArgs))
-	}
 	for i := range f.Assignments {
 		sb.WriteString(f.AssignmentToString(f.Assignments[i]))
 	}
-	if f.PostProcess != nil {
-		sb.WriteString(f.ManipulatorToString(f.PostProcess, f.Src, f.Dst, f.AdditionalArgs))
-	}
+
 	if f.RetError || f.DstVarStyle == DstVarReturn {
 		sb.WriteString("\nreturn\n")
 	}
@@ -329,11 +271,7 @@ func (f Method) AssignmentToString(a Assignment) string {
 	var sb strings.Builder
 	sb.WriteString(a.String())
 	if a.RetError() {
-		if f.DstVarStyle == DstVarReturn && f.Dst.Pointer {
-			sb.WriteString("if err != nil {\nreturn nil, err\n}\n")
-		} else {
-			sb.WriteString("if err != nil {\nreturn\n}\n")
-		}
+		sb.WriteString("if err != nil {\nreturn\n}\n")
 	}
 	return sb.String()
 }

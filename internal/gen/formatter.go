@@ -69,11 +69,11 @@ func (g *Generator) generateContent() (content []byte, err error) {
 
 	for _, inf := range g.spec.Interfaces {
 		for _, method := range inf.Methods {
-			if method.NewFirstParam.IsSlice && method.NewFirstResult.IsSlice &&
-				method.NewFirstParam.IsStruct && method.NewFirstResult.IsStruct {
+			if method.FirstParam.IsSlice && method.FirstResult.IsSlice &&
+				method.FirstParam.IsStruct && method.FirstResult.IsStruct {
 				sb.WriteString(method.FormatSliceOfStruct())
-			} else if method.NewFirstParam.IsStruct && method.NewFirstResult.IsStruct &&
-				method.NewFirstParam.StructDef != nil {
+			} else if method.FirstParam.IsStruct && method.FirstResult.IsStruct &&
+				method.FirstParam.StructDef != nil {
 				sb.WriteString(method.String())
 			}
 		}
