@@ -1,8 +1,8 @@
 package example
 
 import (
-	"github.com/bookweb/structcopy-gen/examples/internal/example/dto"
-	"github.com/bookweb/structcopy-gen/examples/internal/example/entity"
+	"github.com/structcopy/structcopy-gen/examples/internal/example/dto"
+	"github.com/structcopy/structcopy-gen/examples/internal/example/entity"
 )
 
 //go:generate structcopy-gen structcopy-gen.go

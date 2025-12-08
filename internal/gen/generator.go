@@ -9,7 +9,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bookweb/structcopy-gen/pkg/structcopy"
+	"github.com/structcopy/structcopy-gen/pkg/structcopy"
 	"golang.org/x/tools/go/packages"
 )
 

@@ -21,15 +21,15 @@ generate:
 	go generate ./...
 
 build:
-	go build -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) \
-		-X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
-		-X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
+	go build -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
+		-X github.com/structcopy/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
+		-X github.com/structcopy/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
 		-o ./cmd/structcopy-gen/structcopy-gen ./cmd/structcopy-gen/main.go
 
 install:
-	go install -ldflags "-X github.com/bookweb/structcopy-gen/config.Version=$(VERSION) \
-		-X github.com/bookweb/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
-		-X github.com/bookweb/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
+	go install -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
+		-X github.com/structcopy/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
+		-X github.com/structcopy/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
 		./cmd/structcopy-gen
 
 generate-standalone:
@@ -43,8 +43,8 @@ lint:
 	golangci-lint run
 
 test:
-	go test github.com/bookweb/structcopy-gen/tests && \
-	go test github.com/bookweb/structcopy-gen/internal/gen/...
+	go test github.com/structcopy/structcopy-gen/tests && \
+	go test github.com/structcopy/structcopy-gen/internal/gen/...
 
 coverage:
 	@go test -v -cover ./... -coverprofile coverage.out -coverpkg ./... 2>&1 >/dev/null && \
@@ -60,6 +60,9 @@ tag-dev:
 
 tag-stg:
 	autotag -p next -b release-next > .VERSION
+
+tag-dryrun:
+	autotag -n > .VERSION
 
 tag-first:
 	git tag v0.0.1 -m'create project'

@@ -1,8 +1,8 @@
 package standalone
 
 import (
-	"github.com/bookweb/structcopy-gen/examples/internal/standalone/dto"
-	"github.com/bookweb/structcopy-gen/examples/internal/standalone/entity"
+	"github.com/structcopy/structcopy-gen/examples/internal/standalone/dto"
+	"github.com/structcopy/structcopy-gen/examples/internal/standalone/entity"
 )
 
 // :structcopygen

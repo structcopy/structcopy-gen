@@ -1,4 +1,4 @@
-module github.com/bookweb/structcopy-gen
+module github.com/structcopy/structcopy-gen
 
 go 1.24.0
 

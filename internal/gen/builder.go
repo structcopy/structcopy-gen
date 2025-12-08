@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/bookweb/structcopy-gen/pkg/structcopy"
 	"github.com/samber/lo"
+	"github.com/structcopy/structcopy-gen/pkg/structcopy"
 )
 
 func (g *Generator) mkMethodAssignments(src structcopy.MethodParam, dst structcopy.MethodResult, method structcopy.Method) ([]structcopy.Assignment, error) {

@@ -10,10 +10,10 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/bookweb/structcopy-gen/config"
-	"github.com/bookweb/structcopy-gen/internal/gen"
-	"github.com/bookweb/structcopy-gen/internal/load"
 	"github.com/spf13/pflag"
+	"github.com/structcopy/structcopy-gen/config"
+	"github.com/structcopy/structcopy-gen/internal/gen"
+	"github.com/structcopy/structcopy-gen/internal/load"
 	"golang.org/x/tools/go/packages"
 )
 

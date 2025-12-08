@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	structcopygen "github.com/bookweb/structcopy-gen"
+	structcopygen "github.com/structcopy/structcopy-gen"
 )
 
 func main() {
