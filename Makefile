@@ -44,8 +44,7 @@ lint:
 	golangci-lint run
 
 test:
-	go test github.com/structcopy/structcopy-gen/tests && \
-	go test github.com/structcopy/structcopy-gen/internal/gen/...
+	go test ./...
 
 coverage:
 	@go test -v -cover ./... -coverprofile coverage.out -coverpkg ./... 2>&1 >/dev/null && \
