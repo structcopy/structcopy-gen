@@ -1,6 +1,7 @@
-VERSION := $(shell cat .VERSION)
+# VERSION := $(shell cat .VERSION)
+VERSION := $(shell git tag --list --sort=-creatordate | head -n 1)
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
-BUILD_TIME := $(shell date -u +'%Y-%m-%dT%H:%M:%S%NZ')
+BUILD_TIME := $(shell date -u +'%Y-%m-%dT%H:%M:%S.%NZ')
 
 .PHONY: help
 help: ## Show this help message.
@@ -24,7 +25,7 @@ build:
 	go build -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
 		-X github.com/structcopy/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
 		-X github.com/structcopy/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
-		-o ./cmd/structcopy-gen/structcopy-gen ./cmd/structcopy-gen/main.go
+		-o ./structcopy-gen ./cmd/structcopy-gen
 
 install:
 	go install -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
@@ -56,10 +57,10 @@ tag:
 	autotag -b master > .VERSION
 
 tag-dev:
-	autotag -p dev -b develop > .VERSION
+	autotag -b develop -p dev --pre-release-number > .VERSION
 
 tag-stg:
-	autotag -p next -b release-next > .VERSION
+	autotag -b release-next -p next --pre-release-number > .VERSION
 
 tag-dryrun:
 	autotag -n > .VERSION

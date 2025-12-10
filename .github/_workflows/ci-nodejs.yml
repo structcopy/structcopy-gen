@@ -1,0 +1,106 @@
+name: CI/CD Pipeline
+
+on:
+  # 1. Trigger TEST when a Pull Request (PR) is opened, synchronized (new commit), 
+  #    or reopened, targeting 'dev' or 'master'.
+  pull_request:
+    branches:
+      - dev
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+  # 2. Trigger TEST, BUILD, and DEPLOY when a merge (which is a push) 
+  #    occurs on 'dev' or 'master'.
+  push:
+    branches:
+      - dev
+      - master
+
+jobs:
+  ## 🧪 Test Job
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    # Condition: Always run for PRs (workflow #1) or for pushes (workflow #2)
+    # The 'pull_request' event and 'push' event are mutually exclusive in a single run.
+    # The 'push' event is used to detect the merge.
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      # Example: Run your test command
+      - name: Install Dependencies & Run Tests
+        run: |
+          npm install
+          npm test
+
+  ---
+  
+  ## 🏗️ Build Job
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test # Only runs if the 'test' job succeeded
+    
+    # Condition: Only run for the 'push' event (i.e., after a successful merge)
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Example: Run your build command
+      - name: Build Project
+        run: |
+          npm install
+          npm run build
+          
+      # Save the build artifact for the deploy job
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: ./dist # Adjust path to your build output directory
+
+  ---
+
+  ## 🚀 Deploy Job
+  deploy:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+    needs: build # Only runs if the 'build' job succeeded
+    
+    # Condition: Only run for the 'push' event (i.e., after a successful merge)
+    if: github.event_name == 'push'
+    
+    # Define environment based on the branch
+    environment:
+      # If the push is to 'dev', use the 'Development' environment.
+      # If the push is to 'master', use the 'Production' environment.
+      name: ${{ github.ref == 'refs/heads/dev' && 'Development' || 'Production' }}
+      
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          
+      # Example: Deployment steps (e.g., login to cloud provider and deploy)
+      - name: Deploy to Server
+        run: echo "Deploying to ${{ steps.set_env.outputs.env_name }} environment..."
+        # Replace with your actual deployment steps (e.g., using a cloud-specific action)

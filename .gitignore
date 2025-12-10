@@ -233,7 +233,8 @@ fabric.properties
 /build
 
 /vendor
-cmd/structcopy-gen/structcopy-gen
+/cmd/structcopy-gen/structcopy-gen
+/structcopy-gen
 
 __debug_bin**
 .VERSION
