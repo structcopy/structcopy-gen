@@ -53,8 +53,6 @@ jobs:
       # and Go Build cache at the end of this job if a save is necessary.
       # This saved cache is what the next job, 'build', will restore.
 
-  ---
-  
   ## 🏗️ Build Job
   build:
     name: Build Application
@@ -102,8 +100,6 @@ jobs:
       #   with:
       #     name: structcopy-gen-binary
       #     path: ./structcopy-gen
-
-  ---
 
   # ## 🚀 Deploy Job
   # deploy:
