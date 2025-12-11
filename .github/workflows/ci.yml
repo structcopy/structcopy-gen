@@ -19,22 +19,25 @@ on:
       - develop
       - master
 
+  # Manual trigger for deploy job
+  workflow_dispatch:
+
 permissions:
   contents: read
 
 jobs:
   ## 🧪 Test Job
   test:
+    name: Run Tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         go: [1.24]
         os: [ubuntu-latest]
-    name: Run Tests
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
+
       - name: Set up Go and Cache
         # This single step handles installing Go and automatically setting up
         # the cache for both the Go modules and the build cache.
@@ -65,9 +68,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        
-      # --- Caching the Go Environment ---
-      
+
       - name: Set up Go
         # Only set up the environment, but don't enable caching here.
         # We will restore the cache manually below for better control.
@@ -85,8 +86,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
             
-      # --- Build Step ---
-
       - name: Build Go
         # Since the Go modules are restored, this command will be faster
         # as it doesn't need to download dependencies again.
@@ -101,28 +100,78 @@ jobs:
       #     name: structcopy-gen-binary
       #     path: ./structcopy-gen
 
-  # ## 🚀 Deploy Job
-  # deploy:
-  #   name: Deploy to Environment
-  #   runs-on: ubuntu-latest
-  #   needs: build # Only runs if the 'build' job succeeded
+  ## 🚀 Deploy Job
+  deploy:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+    needs: [build] # Only runs if the 'build' job succeeded
     
-  #   # Condition: Only run for the 'push' event (i.e., after a successful merge)
-  #   if: github.event_name == 'push'
+    # Condition: Only run for the 'push' event (i.e., after a successful merge)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     
-  #   # Define environment based on the branch
-  #   environment:
-  #     # If the push is to 'develop', use the 'Development' environment.
-  #     # If the push is to 'master', use the 'Production' environment.
-  #     name: ${{ github.ref == 'refs/heads/develop' && 'Development' || 'Production' }}
+    # Define environment based on the branch
+    environment:
+      # 🌟 CRITICAL LINE: Link this job to the protected environment that setup in Settings => Environments
+      # If the push is to 'develop', use the 'Development' environment.
+      # If the push is to 'master', use the 'Production' environment.
+      name: ${{ github.ref == 'refs/heads/develop' && 'dev' || 'prd' }}
       
-  #   steps:
-  #     - name: Download Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: build-artifact
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so the tagging tool can find previous tags
+          fetch-depth: 0
+
+      - name: Set up Go
+        # Only set up the environment, but don't enable caching here.
+        # We will restore the cache manually below for better control.
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: false # Explicitly disable the automatic cache in this job
           
-  #     # Example: Deployment steps (e.g., login to cloud provider and deploy)
-  #     - name: Deploy to Server
-  #       run: echo "Deploying to ${{ steps.set_env.outputs.env_name }} environment..."
-  #       # Replace with your actual deployment steps (e.g., using a cloud-specific action)
+      - name: Restore Go Module Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod             # Go Module Cache directory
+          # The key MUST match the logic used by setup-go in the 'test' job
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # - name: Download Artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: build-artifact
+          
+      # # Example: Deployment steps (e.g., login to cloud provider and deploy)
+      # - name: Deploy to Server
+      #   run: echo "Deploying to ${{ steps.set_env.outputs.env_name }} environment..."
+      #   # Replace with your actual deployment steps (e.g., using a cloud-specific action)
+
+      - name: Install Autotag Tool
+        run: |
+          # The 'go install' command downloads, builds, and installs the binary 
+          # to $GOPATH/bin, which is typically already in the runner's PATH.
+          go install github.com/autotag-dev/autotag@latest 
+          echo "autotag installed successfully."
+
+      - name: Create and Push Git Tag
+        env:
+          # Use the default GITHUB_TOKEN for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_VERSION=$(autotag -b master -n)
+          
+          # Configure bot identity
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create and push the tag
+          git tag $TAG_VERSION
+          git push origin $TAG_VERSION
+          echo "Successfully created and pushed tag: $TAG_VERSION"
