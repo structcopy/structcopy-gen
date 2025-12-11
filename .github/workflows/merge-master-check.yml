@@ -1,0 +1,49 @@
+name: Enforce Merge Path to Master
+
+# 1. Define when this workflow runs
+on:
+  pull_request:
+    # Restrict execution to PRs targeting the 'master' branch
+    branches:
+      - master
+    # Trigger on PR creation, updates (sync), and when the PR is opened/reopened
+    types: [opened, synchronize, reopened]
+
+# 2. Define the job that performs the check
+jobs:
+  check_source_branch:
+    # The name of this job will be the name of the Status Check displayed on the PR
+    name: "Source Branch Must Be 'develop'"
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check PR Source Branch
+        id: source_check
+        run: |
+          # ----------------------------------------------------
+          # 🔑 Key Variables for the Check
+          # github.head_ref is the SOURCE branch (e.g., feature/X)
+          # github.base_ref is the TARGET branch (e.g., master)
+          # ----------------------------------------------------
+          
+          # Retrieve the source branch name from the GitHub context
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+
+          echo "Target Branch: ${TARGET_BRANCH}"
+          echo "Source Branch: ${SOURCE_BRANCH}"
+          
+          if [ "$TARGET_BRANCH" == "master" ]; then
+            if [ "$SOURCE_BRANCH" != "develop" ]; then
+              echo "::error::🚨 Pull Requests targeting 'master' must originate from the 'develop' branch."
+              echo "::error::Please rebase or merge your changes into 'develop' first."
+              exit 1 # Fail the check
+            else
+              echo "✅ Success! Pull Request from branch '${SOURCE_BRANCH}' is valid for merge into 'master'."
+              exit 0 # Pass the check
+            fi
+          else
+            # Allow merges to other branches (e.g., develop)
+            exit 0
+          fi
+          
