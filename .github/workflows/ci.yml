@@ -165,7 +165,7 @@ jobs:
           # Use the default GITHUB_TOKEN for authentication
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG_VERSION=$(autotag -b master -n)
+          TAG_VERSION="v$(autotag -b master -n)"
           
           # Configure bot identity
           git config user.name "github-actions[bot]"
