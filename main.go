@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"log"
 	"log/slog"
 	"os"
 	"path"
@@ -18,10 +19,15 @@ import (
 )
 
 func Run() error {
+	cfg, err := config.LoadAppConfig("", "")
+	if err != nil {
+		log.Panic(err)
+	}
+
 	flagSet := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
-	version := flagSet.BoolP("version", "v", false, "Version")
-	standalone := flagSet.BoolP("standalone", "s", false, "Standalone mode")
+	flagSet.BoolVarP(&cfg.CliFlags.Version, "version", "v", false, "Version")
+	flagSet.BoolVarP(&cfg.CliFlags.Standalone, "standalone", "s", false, "Standalone mode")
 	output := flagSet.StringP("out", "o", "", "Set the output file path")
 	logs := flagSet.BoolP("log", "l", false, "Write log messages to <output path>.log.")
 	dryRun := flagSet.BoolP("dry", "d", false, "Perform a dry run without writing files.")
@@ -33,10 +39,10 @@ func Run() error {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	if *version {
+	if cfg.CliFlags.Version {
 		fmt.Println(config.Version)
 		fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
-	} else if *standalone {
+	} else if cfg.CliFlags.Standalone {
 		inp := "examples/internal/standalone/structcopy-gen.go"
 		ext := path.Ext(inp)
 		out := inp[0:len(inp)-len(ext)] + ".gen" + ext
@@ -66,14 +72,6 @@ func Run() error {
 		}
 
 		err := load.LoadPackage(inp, out, pluginFunc)
-		// _, err := gen.NewGenerator(
-		// 	gen.WithInputPath(inp),
-		// 	gen.WithOutputPath(out),
-		// 	gen.WithLogPath(log),
-		// 	gen.WithLogEnabled(*logs),
-		// 	gen.WithDryRun(*dryRun),
-		// 	gen.WithPrints(*prints),
-		// )
 		if err != nil {
 			return err
 		}
@@ -83,6 +81,7 @@ func Run() error {
 	} else {
 		inputPath := flagSet.Arg(0)
 		if inputPath == "" {
+			// get Go file path which go:generate comment resides
 			inputPath = os.Getenv("GOFILE")
 		}
 		if inputPath == "" {
@@ -130,14 +129,6 @@ func Run() error {
 		}
 
 		err := load.LoadPackage(inp, out, pluginFunc)
-		// _, err := gen.NewGenerator(
-		// 	gen.WithInputPath(inp),
-		// 	gen.WithOutputPath(out),
-		// 	gen.WithLogPath(log),
-		// 	gen.WithLogEnabled(*logs),
-		// 	gen.WithDryRun(*dryRun),
-		// 	gen.WithPrints(*prints),
-		// )
 		if err != nil {
 			return err
 		}
