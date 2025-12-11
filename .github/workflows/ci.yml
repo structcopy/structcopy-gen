@@ -117,7 +117,7 @@ jobs:
       name: ${{ github.ref == 'refs/heads/develop' && 'dev' || 'prd' }}
       
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -157,7 +157,7 @@ jobs:
         run: |
           # The 'go install' command downloads, builds, and installs the binary 
           # to $GOPATH/bin, which is typically already in the runner's PATH.
-          go install github.com/autotag-dev/autotag@latest 
+          go install github.com/autotag-dev/autotag/autotag@latest 
           echo "autotag installed successfully."
 
       - name: Create and Push Git Tag
