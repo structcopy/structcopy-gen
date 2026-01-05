@@ -148,6 +148,7 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 							currentMethodOptions, err = g.CollectOptions(method.Doc.List, ValidOpsMethod)
 							if err != nil {
 								g.logger.Error("collect options failed", slog.Any("error", err))
+								return nil, err
 							}
 							g.logger.Info("Valid annotations")
 						}
