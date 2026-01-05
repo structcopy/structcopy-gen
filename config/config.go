@@ -17,20 +17,20 @@ var defaultConfig = []byte(`
 app: "structcopy-gen"
 log_level: "info"
 log_format: "json"
-flags:
+flag:
   version: false
   standalone: false
 `)
 
 type (
 	AppConfig struct {
-		App       string   `mapstructure:"app"`
-		LogLevel  string   `mapstructure:"log_level"`
-		LogFormat string   `mapstructure:"log_format"`
-		CliFlags  CliFlags `mapstructure:"flags"`
+		App       string  `mapstructure:"app"`
+		LogLevel  string  `mapstructure:"log_level"`
+		LogFormat string  `mapstructure:"log_format"`
+		CliFlag   CliFlag `mapstructure:"flag"`
 	}
 
-	CliFlags struct {
+	CliFlag struct {
 		Version    bool `mapstructure:"version"`
 		Standalone bool `mapstructure:"standalone"`
 	}

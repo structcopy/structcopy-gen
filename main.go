@@ -26,8 +26,8 @@ func Run() error {
 
 	flagSet := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
-	flagSet.BoolVarP(&cfg.CliFlags.Version, "version", "v", false, "Version")
-	flagSet.BoolVarP(&cfg.CliFlags.Standalone, "standalone", "s", false, "Standalone mode")
+	flagSet.BoolVarP(&cfg.CliFlag.Version, "version", "v", false, "Version")
+	flagSet.BoolVarP(&cfg.CliFlag.Standalone, "standalone", "s", false, "Standalone mode")
 	output := flagSet.StringP("out", "o", "", "Set the output file path")
 	logs := flagSet.BoolP("log", "l", false, "Write log messages to <output path>.log.")
 	dryRun := flagSet.BoolP("dry", "d", false, "Perform a dry run without writing files.")
@@ -39,10 +39,10 @@ func Run() error {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	if cfg.CliFlags.Version {
+	if cfg.CliFlag.Version {
 		fmt.Println(config.Version)
 		fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
-	} else if cfg.CliFlags.Standalone {
+	} else if cfg.CliFlag.Standalone {
 		inp := "examples/internal/standalone/structcopy-gen.go"
 		ext := path.Ext(inp)
 		out := inp[0:len(inp)-len(ext)] + ".gen" + ext
