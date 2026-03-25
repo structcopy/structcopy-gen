@@ -41,7 +41,7 @@ func Run() error {
 	if cfg.CliFlags.Version {
 		// fmt.Println(config.Version)
 		// fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
-		fmt.Printf("%s\n", config.Version)
+		fmt.Printf("%s.%s\n", config.GetBuildInfoVersion(), config.GetBuildInfoRevision())
 	} else if cfg.CliFlags.Standalone {
 		inp := "examples/internal/standalone/structcopy-gen.go"
 		ext := path.Ext(inp)
