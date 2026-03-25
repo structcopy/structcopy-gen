@@ -27,7 +27,7 @@ type (
 		App       string  `mapstructure:"app"`
 		LogLevel  string  `mapstructure:"log_level"`
 		LogFormat string  `mapstructure:"log_format"`
-		CliFlag   CliFlag `mapstructure:"flag"`
+		CliFlags  CliFlag `mapstructure:"flag"`
 	}
 
 	CliFlag struct {
