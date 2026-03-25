@@ -5,6 +5,8 @@ import (
 	"github.com/structcopy/structcopy-gen/examples/internal/example/entity"
 )
 
+// :structcopygen
+//
 //go:generate structcopy-gen structcopy-gen.go
 type StructCopyGen interface {
 	// :match_field Email EMail

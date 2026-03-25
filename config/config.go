@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"runtime/debug"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -27,7 +28,7 @@ type (
 		App       string  `mapstructure:"app"`
 		LogLevel  string  `mapstructure:"log_level"`
 		LogFormat string  `mapstructure:"log_format"`
-		CliFlag   CliFlag `mapstructure:"flag"`
+		CliFlags  CliFlag `mapstructure:"flag"`
 	}
 
 	CliFlag struct {
@@ -79,4 +80,27 @@ func LoadAppConfig(configFilePath, prefix string) (*AppConfig, error) {
 func syncEnvKeys(v *viper.Viper) {
 	// _ = os.Setenv(envs.EnvKey_EncryptKey, v.GetString(envs.EnvKey_EncryptKey))
 	// _ = os.Setenv(envs.EnvKey_DecryptKey, v.GetString(envs.EnvKey_DecryptKey))
+}
+
+func GetBuildInfoVersion() string {
+	currentVersion := Version
+	info, ok := debug.ReadBuildInfo()
+	if ok && info.Main.Version != "(devel)" {
+		currentVersion = info.Main.Version
+	}
+
+	return currentVersion
+}
+
+func GetBuildInfoRevision() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "unknown"
+	}
+	for _, setting := range info.Settings {
+		if setting.Key == "vcs.revision" {
+			return setting.Value
+		}
+	}
+	return "no-vcs-data"
 }
