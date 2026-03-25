@@ -175,3 +175,18 @@ jobs:
           git tag $TAG_VERSION
           git push origin $TAG_VERSION
           echo "Successfully created and pushed tag: $TAG_VERSION"
+
+      - name: Build Go
+        # Since the Go modules are restored, this command will be faster
+        # as it doesn't need to download dependencies again.
+        # run: go build -o structcopy-gen ./cmd/structcopy-gen/
+        run: |
+          make build
+
+      - name: Upload Artifact
+        # Upload the final built binary for deployment or later jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: structcopy-gen-binary
+          path: ./structcopy-gen
+          

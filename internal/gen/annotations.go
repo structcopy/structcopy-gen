@@ -18,6 +18,7 @@ var (
 // ValidOpsIntf is a set of valid conversion option keys for interface-level conversion.
 var ValidOpsIntf = map[string]struct{}{
 	"structcopygen": {},
+	"receiver_type": {},
 }
 
 // ValidOpsMethod is a set of valid conversion option keys for method-level conversion.

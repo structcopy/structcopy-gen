@@ -8,7 +8,7 @@ import (
 // :structcopygen
 //
 //go:generate structcopy-gen structcopy-gen.go
-type StructCopyGen interface {
+type StructCopyGen1 interface {
 
 	// :match_field Email EMail
 	// :match_method FullName FullName()

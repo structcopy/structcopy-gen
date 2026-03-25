@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -102,11 +103,28 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 					continue // Skip non-interface types (like structs)
 				}
 
+				currentInfOptions := &structcopy.InterfaceOption{}
+				var err error
+
+				if genDecl.Doc.List != nil {
+					// when interface is not in a type group, comments is stayed at genDecl
+					currentInfOptions, err = g.CollectInterfaceOptions(genDecl.Doc.List, ValidOpsIntf)
+					if err != nil {
+						g.logger.Error("collect interface options failed", slog.Any("error", err))
+					}
+				} else if typeSpec.Doc.List != nil {
+					// when interface is in a type group, comments is stayed at typeSpec
+					currentInfOptions, err = g.CollectInterfaceOptions(typeSpec.Doc.List, ValidOpsIntf)
+					if err != nil {
+						g.logger.Error("collect interface options failed", slog.Any("error", err))
+					}
+				}
+
 				// We found an interface!
 				interfaceName := typeSpec.Name.Name
 
-				if interfaceName != "StructCopyGen" {
-					continue // skip interface which name is not equal 'StructCopyGen'
+				if interfaceName != "StructCopyGen" && !currentInfOptions.IsStructCopyGen {
+					continue // skip interface which name is not equal 'StructCopyGen' && no :structcopygen annotation
 				}
 				g.logger.Info(fmt.Sprintf("Valid Interface: %s", interfaceName))
 
@@ -148,6 +166,7 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 							currentMethodOptions, err = g.CollectOptions(method.Doc.List, ValidOpsMethod)
 							if err != nil {
 								g.logger.Error("collect options failed", slog.Any("error", err))
+								return nil, err
 							}
 							g.logger.Info("Valid annotations")
 						}
@@ -314,6 +333,55 @@ func extractStructFields(structType *ast.StructType) []structcopy.TypeInfo {
 		}
 	}
 	return fields
+}
+
+func (g *Generator) CollectInterfaceOptions(notations []*ast.Comment, validOps map[string]struct{}) (*structcopy.InterfaceOption, error) {
+	inputOption := &structcopy.InterfaceOption{
+		IsStructCopyGen: false,
+		ReceiverType:    "n",
+		// SkipFieldsMap:       map[string]bool{},
+		// MatchFieldsMap:      map[string]string{},
+		// MatchMethodsMap:     map[string]string{},
+		// ConvertersMap:       map[string]string{},
+	}
+
+	for _, n := range notations {
+		m := reNotation.FindStringSubmatch(n.Text)
+		if m == nil || len(m) < 2 {
+			// return nil, fmt.Errorf("invalid notation format %#v", m)
+			continue
+		}
+
+		var args []string
+		if len(m) == 3 {
+			args = strings.Fields(m[2])
+		}
+
+		if _, ok := validOps[m[1]]; !ok {
+			g.logger.Info(fmt.Sprintf(`%v: ":%v" is invalid or unknown notation here`, g.fset.Position(n.Pos()), m[1]))
+			continue
+		}
+
+		switch m[1] {
+		case "structcopygen":
+			inputOption.IsStructCopyGen = true
+		case "receiver_type":
+			if len(args) < 1 {
+				return nil, fmt.Errorf("%v: needs <dst> args", g.fset.Position(n.Pos()))
+			}
+			dst := args[1]
+			allowedReceiverTypes := []string{"n", "s", "f"}
+			if !slices.Contains(allowedReceiverTypes, dst) {
+				return nil, fmt.Errorf("receiver_type is invalid: %v", dst)
+			}
+
+			inputOption.ReceiverType = dst
+		default:
+			fmt.Printf("%v: unknown notation %v\n", g.fset.Position(n.Pos()), m[1])
+		}
+	}
+
+	return inputOption, nil
 }
 
 func (g *Generator) CollectOptions(notations []*ast.Comment, validOps map[string]struct{}) (*structcopy.InputOption, error) {

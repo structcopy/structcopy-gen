@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"runtime/debug"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -17,20 +18,20 @@ var defaultConfig = []byte(`
 app: "structcopy-gen"
 log_level: "info"
 log_format: "json"
-flags:
+flag:
   version: false
   standalone: false
 `)
 
 type (
 	AppConfig struct {
-		App       string   `mapstructure:"app"`
-		LogLevel  string   `mapstructure:"log_level"`
-		LogFormat string   `mapstructure:"log_format"`
-		CliFlags  CliFlags `mapstructure:"flags"`
+		App       string  `mapstructure:"app"`
+		LogLevel  string  `mapstructure:"log_level"`
+		LogFormat string  `mapstructure:"log_format"`
+		CliFlags  CliFlag `mapstructure:"flag"`
 	}
 
-	CliFlags struct {
+	CliFlag struct {
 		Version    bool `mapstructure:"version"`
 		Standalone bool `mapstructure:"standalone"`
 	}
@@ -79,4 +80,27 @@ func LoadAppConfig(configFilePath, prefix string) (*AppConfig, error) {
 func syncEnvKeys(v *viper.Viper) {
 	// _ = os.Setenv(envs.EnvKey_EncryptKey, v.GetString(envs.EnvKey_EncryptKey))
 	// _ = os.Setenv(envs.EnvKey_DecryptKey, v.GetString(envs.EnvKey_DecryptKey))
+}
+
+func GetBuildInfoVersion() string {
+	currentVersion := Version
+	info, ok := debug.ReadBuildInfo()
+	if ok && info.Main.Version != "(devel)" {
+		currentVersion = info.Main.Version
+	}
+
+	return currentVersion
+}
+
+func GetBuildInfoRevision() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "unknown"
+	}
+	for _, setting := range info.Settings {
+		if setting.Key == "vcs.revision" {
+			return setting.Value
+		}
+	}
+	return "no-vcs-data"
 }

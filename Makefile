@@ -53,16 +53,28 @@ coverage:
 
 .PHONY: tag release
 tag:
+	git checkout master
+	git pull origin master --tag
 	autotag -b master > .VERSION
 
 tag-dev:
+	git checkout develop
+	git pull origin develop --tag
 	autotag -b develop -p dev --pre-release-number > .VERSION
 
 tag-stg:
+	git checkout release-next
+	git pull origin release-next --tag
 	autotag -b release-next -p next --pre-release-number > .VERSION
 
 tag-dryrun:
 	autotag -n > .VERSION
+
+tag-latest:
+	git describe --tags --abbrev=0 > .VERSION
+	
+tag-latest-1:
+	git describe --tags --abbrev=0 > ../.VERSION
 
 tag-first:
 	git tag v0.0.1 -m'create project'
