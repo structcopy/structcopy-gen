@@ -5,44 +5,39 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"log"
 	"log/slog"
 	"os"
 	"path"
 
-	"github.com/spf13/pflag"
 	"github.com/structcopy/structcopy-gen/config"
 	"github.com/structcopy/structcopy-gen/internal/gen"
 	"github.com/structcopy/structcopy-gen/internal/load"
 	"golang.org/x/tools/go/packages"
 )
 
-func Run() error {
-	cfg, err := config.LoadAppConfig("", "")
-	if err != nil {
-		log.Panic(err)
-	}
+type App struct {
+	cfg *config.AppConfig
 
-	flagSet := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+	logEnabled   bool
+	debugEnabled bool
+}
 
-	flagSet.BoolVarP(&cfg.CliFlags.Version, "version", "v", false, "Version")
-	flagSet.BoolVarP(&cfg.CliFlags.Standalone, "standalone", "s", false, "Standalone mode")
-	output := flagSet.StringP("out", "o", "", "Set the output file path")
-	logs := flagSet.BoolP("log", "l", false, "Write log messages to <output path>.log.")
-	dryRun := flagSet.BoolP("dry", "d", false, "Perform a dry run without writing files.")
-	prints := flagSet.BoolP("print", "p", false, "Print the resulting code to STDOUT as well.")
+func NewApp(cfg *config.AppConfig) (*App, error) {
+	return &App{
+		cfg:          cfg,
+		logEnabled:   cfg.CliFlags.LogEnabled,
+		debugEnabled: cfg.CliFlags.DebugEnabled,
+	}, nil
+}
 
-	if err := flagSet.Parse(os.Args[1:]); err != nil {
-		return err
-	}
-
+func (a *App) Run() error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	if cfg.CliFlags.Version {
-		// fmt.Println(config.Version)
+	if a.cfg.CliFlags.Version {
+		fmt.Println(config.Version)
 		// fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
-		fmt.Printf("%s.%s\n", config.GetBuildInfoVersion(), config.GetBuildInfoRevision())
-	} else if cfg.CliFlags.Standalone {
+		// fmt.Printf("%s.%s\n", config.GetBuildInfoVersion(), config.GetBuildInfoRevision())
+	} else if a.cfg.CliFlags.Standalone {
 		inp := "examples/internal/standalone/structcopy-gen.go"
 		ext := path.Ext(inp)
 		out := inp[0:len(inp)-len(ext)] + ".gen" + ext
@@ -55,15 +50,13 @@ func Run() error {
 				gen.WithInputPath(inp),
 				gen.WithOutputPath(out),
 				gen.WithLogger(logger),
-				gen.WithDryRun(*dryRun),
-				gen.WithPrints(*prints),
 			)
 			if err != nil {
 				logger.Error("generate failed", slog.Any("error", err))
 				return err
 			}
 
-			_, err = g.Generate(out, *prints, *dryRun)
+			_, err = g.Generate(out, a.cfg.CliFlags.DebugEnabled, a.cfg.CliFlags.DryRun)
 			if err != nil {
 				return err
 			}
@@ -79,7 +72,7 @@ func Run() error {
 		logger.Info("Running")
 		select {}
 	} else {
-		inputPath := flagSet.Arg(0)
+		inputPath := a.cfg.CliFlags.InputPath
 		if inputPath == "" {
 			// get Go file path which go:generate comment resides
 			inputPath = os.Getenv("GOFILE")
@@ -92,14 +85,14 @@ func Run() error {
 		out := ""
 		log := ""
 
-		if *output != "" {
-			out = *output
+		if a.cfg.CliFlags.OutputPath != "" {
+			out = a.cfg.CliFlags.OutputPath
 		} else {
 			ext := path.Ext(inputPath)
 			out = inputPath[0:len(inputPath)-len(ext)] + ".gen" + ext
 		}
 
-		if *logs {
+		if a.cfg.LogEnabled {
 			ext := path.Ext(out)
 			log = out[0:len(out)-len(ext)] + ".log"
 		}
@@ -112,15 +105,13 @@ func Run() error {
 				gen.WithInputPath(inp),
 				gen.WithOutputPath(out),
 				gen.WithLogPath(log),
-				gen.WithLogEnabled(*logs),
-				gen.WithDryRun(*dryRun),
-				gen.WithPrints(*prints),
+				gen.WithLogEnabled(a.cfg.LogEnabled),
 			)
 			if err != nil {
 				return err
 			}
 
-			_, err = g.Generate(out, *prints, *dryRun)
+			_, err = g.Generate(out, a.cfg.CliFlags.DebugEnabled, a.cfg.CliFlags.DryRun)
 			if err != nil {
 				return err
 			}

@@ -3,6 +3,10 @@ VERSION := $(shell git tag --list --sort=-creatordate | head -n 1)
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
 BUILD_TIME := $(shell date -u +'%Y-%m-%dT%H:%M:%S.%NZ')
 
+VERSION_BASE_TAG := $(shell echo "${VERSION}" | cut -d '+' -f 1)
+VERSION_NUMBER := $(shell echo "${VERSION}" | cut -d '+' -f 2)
+VERSION_BASE := $(subst v,,$(VERSION_BASE_TAG))
+
 .PHONY: help
 help: ## Show this help message.
 	@echo 'usage: make [target] ...'
@@ -22,13 +26,13 @@ generate:
 	go generate ./...
 
 build:
-	go build -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
+	go build -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION_BASE) \
 		-X github.com/structcopy/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
 		-X github.com/structcopy/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
 		-o ./structcopy-gen ./cmd/structcopy-gen
 
 install:
-	go install -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION) \
+	go install -ldflags "-X github.com/structcopy/structcopy-gen/config.Version=$(VERSION_BASE) \
 		-X github.com/structcopy/structcopy-gen/config.CommitHash=$(GIT_COMMIT) \
 		-X github.com/structcopy/structcopy-gen/config.BuildTime=${BUILD_TIME}" \
 		./cmd/structcopy-gen
