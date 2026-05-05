@@ -11,7 +11,7 @@ import (
 
 // Generate generates the code into a file with the given path.
 // It returns the generated code as a byte slice.
-func (g *Generator) Generate(outPath string, output, dryRun bool) ([]byte, error) {
+func (g *Generator) Generate(outPath string, debugEnabled, dryRun bool) ([]byte, error) {
 	content, err := g.generateContent()
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func (g *Generator) Generate(outPath string, output, dryRun bool) ([]byte, error
 
 	optimized, err := imports.Process(outPath, content, nil)
 	if err != nil {
-		if output {
+		if debugEnabled {
 			fmt.Println(string(content))
 		}
 		return nil, fmt.Errorf("error on optimizing imports of the generated code.\n%w", err)
@@ -27,14 +27,14 @@ func (g *Generator) Generate(outPath string, output, dryRun bool) ([]byte, error
 
 	formatted, err := format.Source(optimized)
 	if err != nil {
-		if output {
+		if debugEnabled {
 			fmt.Println(string(content))
 		}
 		return nil, fmt.Errorf("error on formatting the generated code.\n%w", err)
 	}
 
 	if dryRun {
-		if output {
+		if debugEnabled {
 			fmt.Println(string(formatted))
 		}
 		return formatted, nil

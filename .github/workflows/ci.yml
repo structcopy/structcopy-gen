@@ -34,6 +34,10 @@ jobs:
       matrix:
         go: [1.24]
         os: [ubuntu-latest]
+
+    # Conditions: No conditions
+    # if: 
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

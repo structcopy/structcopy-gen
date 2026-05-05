@@ -25,8 +25,6 @@ type Generator struct {
 	output string
 	log    string
 	logs   bool
-	prints bool
-	dryRun bool
 
 	logger *slog.Logger
 }

@@ -16,24 +16,34 @@ var BuildTime string = ""
 
 var defaultConfig = []byte(`
 app: "structcopy-gen"
+log_enabled: false
 log_level: "info"
 log_format: "json"
 flag:
   version: false
   standalone: false
+  log_enabled: false
+  debug_enabled: false
+  dry_run: false
 `)
 
 type (
 	AppConfig struct {
-		App       string  `mapstructure:"app"`
-		LogLevel  string  `mapstructure:"log_level"`
-		LogFormat string  `mapstructure:"log_format"`
-		CliFlags  CliFlag `mapstructure:"flag"`
+		App        string  `mapstructure:"app"`
+		LogEnabled bool    `mapstructure:"log_enabled"`
+		LogLevel   string  `mapstructure:"log_level"`
+		LogFormat  string  `mapstructure:"log_format"`
+		CliFlags   CliFlag `mapstructure:"flag"`
 	}
 
 	CliFlag struct {
-		Version    bool `mapstructure:"version"`
-		Standalone bool `mapstructure:"standalone"`
+		Version      bool   `mapstructure:"version"`
+		Standalone   bool   `mapstructure:"standalone"`
+		OutputPath   string `mapstructure:"output_path"`
+		InputPath    string `mapstructure:"input_path"`
+		LogEnabled   bool   `mapstructure:"log_enabled"`
+		DebugEnabled bool   `mapstructure:"debug_enabled"`
+		DryRun       bool   `mapstructure:"dry_run"`
 	}
 )
 
