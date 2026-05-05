@@ -34,7 +34,7 @@ func (a *App) Run() error {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	if a.cfg.CliFlags.Version {
-		fmt.Println(config.Version)
+		fmt.Println(config.GetBuildInfoVersion())
 		// fmt.Printf("%s__%s__%s__%s\n", config.Version, config.CommitHash, config.BuildTime, runtime.Version())
 		// fmt.Printf("%s.%s\n", config.GetBuildInfoVersion(), config.GetBuildInfoRevision())
 	} else if a.cfg.CliFlags.Standalone {
