@@ -39,17 +39,3 @@ func WithLogEnabled(logs bool) GeneratorOption {
 		g.logs = logs
 	}
 }
-
-// WithPrints sets output path.
-func WithPrints(prints bool) GeneratorOption {
-	return func(g *Generator) {
-		g.prints = prints
-	}
-}
-
-// WithDryRun sets output path.
-func WithDryRun(dryRun bool) GeneratorOption {
-	return func(g *Generator) {
-		g.dryRun = dryRun
-	}
-}
