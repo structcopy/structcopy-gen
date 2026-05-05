@@ -18,7 +18,7 @@ var defaultConfig = []byte(`
 app: "structcopy-gen"
 log_enabled: false
 log_level: "info"
-log_format: "json"
+log_format: "json" # logfmt | json
 flag:
   version: false
   standalone: false
@@ -93,6 +93,12 @@ func syncEnvKeys(v *viper.Viper) {
 }
 
 func GetBuildInfoVersion() string {
+	// for release version
+	if Version != "dev" {
+		return Version
+	}
+
+	// for go install version
 	currentVersion := Version
 	info, ok := debug.ReadBuildInfo()
 	if ok && info.Main.Version != "(devel)" {
