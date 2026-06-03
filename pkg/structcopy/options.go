@@ -3,6 +3,7 @@ package structcopy
 type InterfaceOption struct {
 	IsStructCopyGen bool
 	ReceiverType    string // n, s, f
+	ReceiverName    string // default: myConverter
 }
 
 type InputOption struct {

@@ -16,6 +16,8 @@ type Method struct {
 	AdditionalArgs []Variable
 
 	Receiver            string
+	ReceiverType        string
+	ReceiverName        string
 	SkipFieldsMap       map[string]bool
 	MatchFieldsMap      map[string]string
 	MatchMethodsMap     map[string]string
@@ -105,6 +107,12 @@ func (f Method) String() string {
 	// "func"
 	sb.WriteString("func ")
 
+	if f.ReceiverType == "s" {
+		sb.WriteString("(c *")
+		sb.WriteString(f.ReceiverName)
+		sb.WriteString(") ")
+	}
+
 	// "func (r *SrcModel) Name("
 	sb.WriteString(f.Name)
 	sb.WriteString("(")
@@ -190,6 +198,12 @@ func (f Method) FormatSliceOfStruct() string {
 
 	// "func"
 	sb.WriteString("func ")
+
+	if f.ReceiverType == "s" {
+		sb.WriteString("(c *")
+		sb.WriteString(f.ReceiverName)
+		sb.WriteString(") ")
+	}
 
 	// "func (r *SrcModel) Name("
 	sb.WriteString(f.Name)

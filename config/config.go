@@ -44,6 +44,7 @@ type (
 		LogEnabled   bool   `mapstructure:"log_enabled"`
 		DebugEnabled bool   `mapstructure:"debug_enabled"`
 		DryRun       bool   `mapstructure:"dry_run"`
+		ReceiverType string `mapstructure:"receiver_type"`
 	}
 )
 

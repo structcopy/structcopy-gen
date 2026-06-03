@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"strings"
 
+	"github.com/structcopy/structcopy-gen/pkg/structcopy"
 	"golang.org/x/tools/imports"
 )
 
@@ -68,6 +70,12 @@ func (g *Generator) generateContent() (content []byte, err error) {
 	}
 
 	for _, inf := range g.spec.Interfaces {
+		if len(inf.Methods) > 0 {
+			if inf.ReceiverType == "s" {
+				sb.WriteString(g.WriteReceiver(inf))
+			}
+		}
+
 		for _, method := range inf.Methods {
 			if method.FirstParam.IsSlice && method.FirstResult.IsSlice &&
 				method.FirstParam.IsStruct && method.FirstResult.IsStruct {
@@ -89,4 +97,25 @@ func (g *Generator) generateContent() (content []byte, err error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (g *Generator) WriteReceiver(inf structcopy.Interface) string {
+	var sb strings.Builder
+
+	sb.WriteString("type ")
+	sb.WriteString(inf.ReceiverName)
+	sb.WriteString(" struct {\n")
+	sb.WriteString("}\n\n")
+
+	sb.WriteString("func New")
+	sb.WriteString(inf.Name)
+	sb.WriteString("() ")
+	sb.WriteString(inf.Name)
+	sb.WriteString(" {\n")
+	sb.WriteString("	return &")
+	sb.WriteString(inf.ReceiverName)
+	sb.WriteString("{}\n")
+	sb.WriteString("}\n\n")
+
+	return sb.String()
 }

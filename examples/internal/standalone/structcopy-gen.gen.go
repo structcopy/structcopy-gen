@@ -62,3 +62,66 @@ func TestToTestDTORaw(src Test) (dst TestDTO) {
 
 	return
 }
+
+type myConverter struct {
+}
+
+func NewMyConverter() MyConverter {
+	return &myConverter{}
+}
+
+func (c *myConverter) UserToUserDTO(src *entity.User) (dst *dto.UserDTO) {
+	dst = &dto.UserDTO{}
+	dst.FirstName = src.FirstName
+	dst.LastName = TestConvert(src.LastName)
+	dst.Email = TestConvert(src.EMail)
+	dst.FullName = src.FullName()
+	// skip: dst.SkipField
+
+	return
+}
+
+func (c *myConverter) UserToUserDTORaw(src entity.User) (dst dto.UserDTO) {
+	dst.FirstName = src.FirstName
+	dst.LastName = src.LastName
+	// no match: dst.Email
+	// no match: dst.FullName
+	// no match: dst.SkipField
+
+	return
+}
+
+func (c *myConverter) UserSliceToUserDTOSlice(src []*entity.User) (dst []*dto.UserDTO) {
+	if len(src) > 0 {
+		dst = make([]*dto.UserDTO, len(src))
+		for i, e := range src {
+			dst[i] = UserToUserDTO(e)
+		}
+	}
+
+	return
+}
+
+func (c *myConverter) UserSliceToUserDTOSliceRaw(src []entity.User) (dst []dto.UserDTO) {
+	if len(src) > 0 {
+		dst = make([]dto.UserDTO, len(src))
+		for i, e := range src {
+			dst[i] = UserToUserDTORaw(e)
+		}
+	}
+
+	return
+}
+
+func (c *myConverter) TestToTestDTO(src *Test) (dst *TestDTO) {
+	dst = &TestDTO{}
+	dst.FirstName = src.FirstName
+
+	return
+}
+
+func (c *myConverter) TestToTestDTORaw(src Test) (dst TestDTO) {
+	dst.FirstName = src.FirstName
+
+	return
+}

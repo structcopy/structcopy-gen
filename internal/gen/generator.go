@@ -133,6 +133,9 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 				}
 				// currentInterfaceOptions := &option.Options{}
 
+				currentInterface.ReceiverType = currentInfOptions.ReceiverType
+				currentInterface.ReceiverName = currentInfOptions.ReceiverName
+
 				if typeSpec.Doc != nil {
 					// opts := option.NewOptions()
 					// for _, comment := range typeSpec.Doc.List {
@@ -169,6 +172,8 @@ func NewGenerator(pkg *packages.Package, fset *token.FileSet, file *ast.File, op
 							g.logger.Info("Valid annotations")
 						}
 
+						currentMethod.ReceiverType = currentInfOptions.ReceiverType
+						currentMethod.ReceiverName = currentInfOptions.ReceiverName
 						currentMethod.SkipFieldsMap = currentMethodOptions.SkipFieldsMap
 						currentMethod.MatchFieldsMap = currentMethodOptions.MatchFieldsMap
 						currentMethod.MatchMethodsMap = currentMethodOptions.MatchMethodsMap
@@ -337,6 +342,7 @@ func (g *Generator) CollectInterfaceOptions(notations []*ast.Comment, validOps m
 	inputOption := &structcopy.InterfaceOption{
 		IsStructCopyGen: false,
 		ReceiverType:    "n",
+		ReceiverName:    "myConverter",
 		// SkipFieldsMap:       map[string]bool{},
 		// MatchFieldsMap:      map[string]string{},
 		// MatchMethodsMap:     map[string]string{},
@@ -365,15 +371,22 @@ func (g *Generator) CollectInterfaceOptions(notations []*ast.Comment, validOps m
 			inputOption.IsStructCopyGen = true
 		case "receiver_type":
 			if len(args) < 1 {
-				return nil, fmt.Errorf("%v: needs <dst> args", g.fset.Position(n.Pos()))
+				return nil, fmt.Errorf("%v: needs <receiver_type>", g.fset.Position(n.Pos()))
 			}
-			dst := args[1]
+			dst := args[0]
 			allowedReceiverTypes := []string{"n", "s", "f"}
 			if !slices.Contains(allowedReceiverTypes, dst) {
 				return nil, fmt.Errorf("receiver_type is invalid: %v", dst)
 			}
 
 			inputOption.ReceiverType = dst
+		case "receiver_name":
+			if len(args) < 1 {
+				return nil, fmt.Errorf("%v: needs <receiver_name>", g.fset.Position(n.Pos()))
+			}
+			dst := args[0]
+
+			inputOption.ReceiverName = dst
 		default:
 			fmt.Printf("%v: unknown notation %v\n", g.fset.Position(n.Pos()), m[1])
 		}
