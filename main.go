@@ -31,7 +31,8 @@ func NewApp(cfg *config.AppConfig) (*App, error) {
 }
 
 func (a *App) Run() error {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	// logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	if a.cfg.CliFlags.Version {
 		fmt.Println(config.GetBuildInfoVersion())

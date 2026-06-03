@@ -42,6 +42,9 @@ generate-standalone:
 	
 generate-example:
 	go generate ./examples/internal/example
+	
+generate-example-struct:
+	go generate ./examples/internal/simple-struct
 
 .PHONY: lint test coverage
 lint:

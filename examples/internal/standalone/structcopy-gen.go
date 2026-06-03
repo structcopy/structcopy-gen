@@ -29,3 +29,29 @@ type StructCopyGen1 interface {
 
 	TestToTestDTORaw(src Test) (dst TestDTO)
 }
+
+// :structcopygen
+// :receiver_type s
+//
+//go:generate structcopy-gen structcopy-gen.go
+type MyConverter interface {
+
+	// :match_field Email EMail
+	// :match_method FullName FullName()
+	// :conv LastName TestConvert
+	// :conv Email TestConvert
+	// :skip_field SkipField
+	UserToUserDTO(src *entity.User) (dst *dto.UserDTO)
+
+	UserToUserDTORaw(src entity.User) (dst dto.UserDTO)
+
+	// :struct_conv UserToUserDTO
+	UserSliceToUserDTOSlice(src []*entity.User) (dst []*dto.UserDTO)
+
+	// :struct_conv UserToUserDTORaw
+	UserSliceToUserDTOSliceRaw(src []entity.User) (dst []dto.UserDTO)
+
+	TestToTestDTO(src *Test) (dst *TestDTO)
+
+	TestToTestDTORaw(src Test) (dst TestDTO)
+}
