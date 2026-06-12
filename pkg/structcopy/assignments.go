@@ -267,6 +267,7 @@ type SliceStructConvertLoopAssignment struct {
 	RHS           string
 	Typ           string
 	StructConvert string
+	ReceiverType  string
 }
 
 // String returns the string representation of the slice assignment with a loop.
@@ -286,6 +287,9 @@ func (c SliceStructConvertLoopAssignment) String() string {
 	sb.WriteString("{\n")
 	sb.WriteString(c.LHS)
 	sb.WriteString("[i] = ")
+	if c.ReceiverType == "s" {
+		sb.WriteString("c.")
+	}
 	sb.WriteString(c.StructConvert)
 	sb.WriteString("(e)\n}\n}\n")
 	return sb.String()
