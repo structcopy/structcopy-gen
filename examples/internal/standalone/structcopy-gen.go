@@ -5,7 +5,7 @@ import (
 	"github.com/structcopy/structcopy-gen/examples/internal/standalone/entity"
 )
 
-// :structcopygen
+// :structcopy-gen
 //
 //go:generate structcopy-gen structcopy-gen.go
 type StructCopyGen1 interface {
@@ -30,7 +30,7 @@ type StructCopyGen1 interface {
 	TestToTestDTORaw(src Test) (dst TestDTO)
 }
 
-// :structcopygen
+// :structcopy-gen
 // :receiver_type s
 //
 //go:generate structcopy-gen structcopy-gen.go

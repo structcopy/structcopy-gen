@@ -9,7 +9,7 @@ var (
 	reNotation = regexp.MustCompile(`^\s*//\s*:(\S+)\s*(.*)$`)
 	// reStructcopygen is a regular expression that matches a notation that
 	// indicates the beginning of a structcopy-gen block.
-	reStructcopygen = regexp.MustCompile(`^\s*//\s*:structcopygen\b`)
+	reStructcopygen = regexp.MustCompile(`^\s*//\s*:structcopy-gen\b`)
 	// reLiteral is a regular expression that matches a notation that
 	// indicates the beginning of a literal block.
 	reLiteral = regexp.MustCompile(`^\s*\S+\s+(.*)$`)
@@ -17,9 +17,9 @@ var (
 
 // ValidOpsIntf is a set of valid conversion option keys for interface-level conversion.
 var ValidOpsIntf = map[string]struct{}{
-	"structcopygen": {},
-	"receiver_type": {},
-	"receiver_name": {},
+	"structcopy-gen": {},
+	"receiver_type":  {},
+	"receiver_name":  {},
 }
 
 // ValidOpsMethod is a set of valid conversion option keys for method-level conversion.
