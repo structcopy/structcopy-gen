@@ -143,6 +143,7 @@ func (g *Generator) mkSliceOfStructToSliceOfStructAssignments(
 		RHS:           src.Name,
 		Typ:           dst.FullType,
 		StructConvert: structConverterFunc,
+		ReceiverType:  method.ReceiverType,
 	}
 	assignments = append(assignments, assignment)
 

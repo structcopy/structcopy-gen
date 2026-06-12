@@ -95,7 +95,7 @@ func (c *myConverter) UserSliceToUserDTOSlice(src []*entity.User) (dst []*dto.Us
 	if len(src) > 0 {
 		dst = make([]*dto.UserDTO, len(src))
 		for i, e := range src {
-			dst[i] = UserToUserDTO(e)
+			dst[i] = c.UserToUserDTO(e)
 		}
 	}
 
@@ -106,7 +106,7 @@ func (c *myConverter) UserSliceToUserDTOSliceRaw(src []entity.User) (dst []dto.U
 	if len(src) > 0 {
 		dst = make([]dto.UserDTO, len(src))
 		for i, e := range src {
-			dst[i] = UserToUserDTORaw(e)
+			dst[i] = c.UserToUserDTORaw(e)
 		}
 	}
 
