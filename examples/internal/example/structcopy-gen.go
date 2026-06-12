@@ -5,7 +5,7 @@ import (
 	"github.com/structcopy/structcopy-gen/examples/internal/example/entity"
 )
 
-// :structcopygen
+// :structcopy-gen
 //
 //go:generate structcopy-gen structcopy-gen.go
 type StructCopyGen interface {

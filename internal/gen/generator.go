@@ -367,7 +367,7 @@ func (g *Generator) CollectInterfaceOptions(notations []*ast.Comment, validOps m
 		}
 
 		switch m[1] {
-		case "structcopygen":
+		case "structcopy-gen":
 			inputOption.IsStructCopyGen = true
 		case "receiver_type":
 			if len(args) < 1 {
@@ -421,7 +421,7 @@ func (g *Generator) CollectOptions(notations []*ast.Comment, validOps map[string
 		}
 
 		switch m[1] {
-		case "structcopygen":
+		case "structcopy-gen":
 			// do nothing
 		case "skip_field":
 			if len(args) < 1 {
