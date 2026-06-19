@@ -36,6 +36,7 @@ type Field struct {
 	Kind       string
 	Type       string // raw type name (UserID, *User, etc.)
 	FullType   string
+	IsExported bool
 	IsStruct   bool
 	IsPointer  bool   // true if field type is pointer
 	IsSlice    bool   // true if field type is slice []User, []*User

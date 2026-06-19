@@ -41,6 +41,9 @@ func (g *Generator) mkStructToStructAssignments(
 	assignments := make([]structcopy.Assignment, 0)
 
 	for _, field := range dst.StructDef.Fields {
+		if !field.IsExported {
+			continue
+		}
 		assignment, err := g.mkFieldAssignment(field, src, dst, method)
 		if err != nil {
 			g.logger.Error("", slog.Any("error", err))
