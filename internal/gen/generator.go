@@ -573,6 +573,7 @@ func parseStruct(typeSpec *ast.TypeSpec, pkgName string, rootPkgPath string) *st
 				Name:       name.Name,
 				Type:       typeName,
 				PackageRef: pkgRef,
+				IsExported: name.IsExported(),
 				IsPointer:  isPtr,
 				IsSlice:    isSlice,
 			})
