@@ -1,9 +1,8 @@
 module github.com/structcopy/structcopy-gen
 
-go 1.24.0
+go 1.26.0
 
 require (
-	github.com/samber/lo v1.52.0
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
 	golang.org/x/tools v0.37.0

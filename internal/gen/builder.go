@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 
-	"github.com/samber/lo"
 	"github.com/structcopy/structcopy-gen/pkg/structcopy"
 )
 
@@ -91,7 +91,7 @@ func (g *Generator) mkFieldAssignment(
 		srcMatchMethod = matchMethod
 	}
 
-	matchSrcField := lo.ContainsBy(src.StructDef.Fields, func(fi structcopy.Field) bool {
+	matchSrcField := slices.ContainsFunc(src.StructDef.Fields, func(fi structcopy.Field) bool {
 		return fi.Name == field.Name
 	})
 
