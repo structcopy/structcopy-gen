@@ -3,15 +3,15 @@
 
 StructCopyGen is a code generator that creates functions to copy struct-to-struct, slice-of-struct-to-slice-of-struct.
 
-## Install
+## 1. Install
 
 ```
 go install github.com/structcopy/structcopy-gen/cmd/structcopy-gen@latest
 ```
 
-## Usage
+## 2. Usage
 
-### Use as a Go generator
+### 2.1 Use as a Go generator
 
 ```go
 //go:generate structcopy-gen
@@ -20,7 +20,7 @@ type StructCopyGen interface {
 }
 ```
 
-### Notation Table
+### 2.2 Notation Table
 --------------
 
 In defaults, all struct's fields are mapping by their name. In case you need to customize the `src`, you can use below annotations
@@ -33,7 +33,7 @@ In defaults, all struct's fields are mapping by their name. In case you need to 
 | :conv <`dst_field`> <`func`> | method | Specify converter `func` to use |
 | :struct_conv <`func`> | method | Specify struct convert `func` to use. It's required when copy slice of struct |
 
-### Sample
+### 2.3 Sample
 ------
 
 To use structcopy-gen, write a generator code in the following convention:
@@ -129,7 +129,12 @@ func CopyUserListToUserDTOList(src []*entity.User) (dst []*dto.UserDTO) {
 }
 ```
 
-## Credits
+### 2.4 Generate to a converter struct
+
+(Coming soon...)
+
+
 
 ## License
 
+[MIT License](LICENSE)
